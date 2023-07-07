@@ -1,0 +1,41 @@
+#include <Servo.h>
+Servo Serv;
+
+int pinIR = 3;
+int pinServo = 4;
+int val = 0;
+int verde = 6;
+int rojo = 5;
+
+unsigned long restartTime = 0;  // Variable para almacenar el tiempo de reinicio
+
+void setup() {
+  Serv.attach(pinServo);
+  pinMode(verde, OUTPUT);
+  pinMode(rojo, OUTPUT);
+}
+
+void loop() {
+  if (restartTime == 0) {  // Si restartTime es igual a 0, significa que no se ha establecido un tiempo de reinicio
+    val = digitalRead(pinIR);
+
+    if (val == 0) {
+      delay(3000);//tiempo para abrir compuerta 
+      Serv.write(90);//grados en el que se debe abrir
+      delay(1000);
+      Serv.write(180);//los grados en el que se inicia 
+      digitalWrite(verde, HIGH);
+      digitalWrite(rojo, LOW);
+      restartTime = millis();  // Establecer el tiempo de reinicio como el tiempo actual
+    } else {
+      Serv.write(180);// los grados a los que vuelve luego de ser accionada (90°)
+      delay(100);
+      digitalWrite(rojo, HIGH);
+      digitalWrite(verde, LOW);
+    }
+  } else {
+    if (millis() - restartTime >= 10000) {  // Si ha pasado al menos 10 segundos desde el tiempo de reinicio
+      restartTime = 0;  // Reiniciar el tiempo de reinicio a 0
+    }
+  }
+}
